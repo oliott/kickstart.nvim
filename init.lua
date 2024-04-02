@@ -118,6 +118,14 @@ vim.keymap.set('n', '<C-l>', '<C-w><C-l>', { desc = 'Move focus to the right win
 vim.keymap.set('n', '<C-j>', '<C-w><C-j>', { desc = 'Move focus to the lower window' })
 vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
 
+--  See `:help tag-page` for a list of all tab page commands
+vim.keymap.set('n', '<leader>tq', '<cmd>tabclose<CR>', { desc = 'Closes the current [T]ab [Q]uit' })
+vim.keymap.set('n', '<leader>tc', '<cmd>tabnew<CR>', { desc = 'Creates a new [T]ab [C]reate' })
+vim.keymap.set('n', '<leader>tp', '<cmd>-tabnext<CR>', { desc = 'Go to [T]ab [P]revious' })
+vim.keymap.set('n', '<leader>tn', '<cmd>+tabnext<CR>', { desc = 'Go to [T]ab [N]ext' })
+vim.keymap.set('n', '<leader>tl', '<cmd>tabnext #<CR>', { desc = 'Go to [T]ab [L]ast accessed' })
+vim.keymap.set('n', '<leader>tt', '<cmd>tabnew | term<CR>', { desc = 'Creates a [T]ab [T]erminal' })
+
 -- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`
 
@@ -166,7 +174,7 @@ require('lazy').setup({
   --    require('Comment').setup({})
 
   -- "gc" to comment visual regions/lines
-  { 'numToStr/Comment.nvim',    opts = {} },
+  { 'numToStr/Comment.nvim', opts = {} },
 
   -- Here is a more advanced example where we pass configuration
   -- options to `gitsigns.nvim`. This is equivalent to the following Lua:
@@ -201,7 +209,7 @@ require('lazy').setup({
   -- after the plugin has been loaded:
   --  config = function() ... end
 
-  {                     -- Useful plugin to show you pending keybinds.
+  { -- Useful plugin to show you pending keybinds.
     'folke/which-key.nvim',
     event = 'VimEnter', -- Sets the loading event to 'VimEnter'
     config = function() -- This is the function that runs, AFTER loading
@@ -245,9 +253,11 @@ require('lazy').setup({
         end,
       },
       { 'nvim-telescope/telescope-ui-select.nvim' },
+      -- This lets us list tab pages with telescope
+      { 'LukasPietzschmann/telescope-tabs' },
 
       -- Useful for getting pretty icons, but requires a Nerd Font.
-      { 'nvim-tree/nvim-web-devicons',            enabled = vim.g.have_nerd_font },
+      { 'nvim-tree/nvim-web-devicons', enabled = vim.g.have_nerd_font },
     },
     config = function()
       -- Telescope is a fuzzy finder that comes with a lot of different things that
@@ -291,6 +301,7 @@ require('lazy').setup({
       -- Enable Telescope extensions if they are installed
       pcall(require('telescope').load_extension, 'fzf')
       pcall(require('telescope').load_extension, 'ui-select')
+      pcall(require('telescope').load_extension, 'telescope-tabs')
 
       -- See `:help telescope.builtin`
       local builtin = require 'telescope.builtin'
@@ -327,6 +338,11 @@ require('lazy').setup({
       vim.keymap.set('n', '<leader>sn', function()
         builtin.find_files { cwd = vim.fn.stdpath 'config' }
       end, { desc = '[S]earch [N]eovim files' })
+
+      -- Shortcut for searching your tab pages
+      vim.keymap.set('n', '<leader>st', function()
+        require('telescope-tabs').list_tabs()
+      end, { desc = '[S]earch existing [T]abs' })
     end,
   },
 
@@ -481,7 +497,6 @@ require('lazy').setup({
         --gdscript = {
         --  cmd = { "godot-wsl-lsp" },
         --},
-
 
         lua_ls = {
           -- cmd = {...},
@@ -791,19 +806,19 @@ require('lazy').setup({
   },
 })
 
-local is_wsl = vim.fn.has('wsl') == 1 or (vim.fn.getenv('WSL_DISTRO_NAME') ~= vim.NIL)
+local is_wsl = vim.fn.has 'wsl' == 1 or (vim.fn.getenv 'WSL_DISTRO_NAME' ~= vim.NIL)
 
 if is_wsl then
-  local lsp_conf_ok, lspconfig = pcall(require, "lspconfig")
+  local lsp_conf_ok, lspconfig = pcall(require, 'lspconfig')
   if not lsp_conf_ok then
     return
   end
 
   lspconfig.gdscript.setup {
-    cmd = { "godot-wsl-lsp" },
+    cmd = { 'godot-wsl-lsp' },
   }
 else
-  print("Not running in WSL")
+  print 'Not running in WSL'
   -- Your non-WSL-specific configurations go here
 end
 -- The line beneath this is called `modeline`. See `:help modeline`
